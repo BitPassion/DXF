@@ -853,13 +853,6 @@ contract DynastyXV1 is ERC20, Ownable {
 
     bool private swapping;
 
-    uint256 private _liquidityFee;
-    uint256 private _operatingFee;
-    uint256 private _reservedFee;
-    uint256 private _totalFees;
-    // exlcude from fees and max transaction amount
-    mapping (address => bool) private _isExcludedFromFees;
-
     uint256 public _totalSupply = 100000000 * (10**18);
     uint256 public _maxTxAmount = 1000000 * (10**18);
     uint256 public numTokensSellToAddToLiquidity = 10000 * (10**18);
@@ -898,10 +891,6 @@ contract DynastyXV1 is ERC20, Ownable {
         uniswapV2Router = _uniswapV2Router;
         uniswapV2Pair = _uniswapV2Pair;
 
-        // exclude from paying fees or having max transaction amount
-        excludeFromFee(owner());
-        excludeFromFee(address(this));
-
         operationWallet = owner();
         reservedWallet = owner();
 
@@ -928,18 +917,6 @@ contract DynastyXV1 is ERC20, Ownable {
     
     function setMaxTxAmount(uint256 maxTxAmount) external onlyOwner() {
         _maxTxAmount = maxTxAmount * 10**18;
-    }
-
-    function isExcludedFromFee(address account) public view returns(bool) {
-        return _isExcludedFromFees[account];
-    }
-    
-    function excludeFromFee(address account) public onlyOwner {
-        _isExcludedFromFees[account] = true;
-    }
-    
-    function includeInFee(address account) public onlyOwner {
-        _isExcludedFromFees[account] = false;
     }
 
     function setSwapAndLiquifyEnabled(bool _enabled) public onlyOwner {
@@ -1007,58 +984,6 @@ contract DynastyXV1 is ERC20, Ownable {
             swapAndLiquify(contractTokenBalance);
         }
 
-        bool takeFee = true;
-        // if any account belongs to _isExcludedFromFee account then remove the fee
-        if(_isExcludedFromFees[from] || _isExcludedFromFees[to]) {
-            takeFee = false;
-        }
-
-        if(takeFee) {
-            if(to == uniswapV2Pair){ // Selling only
-                if(amount <= tierOneThreshold){
-                    _totalFees = 10;
-                    _liquidityFee = 6;
-                    _operatingFee = 3;
-                    _reservedFee = 1;
-                }else if(amount <= tierTwoThreshold){
-                    _totalFees = 12;
-                    _liquidityFee = 7;
-                    _operatingFee = 3;
-                    _reservedFee = 2;
-                }else if(amount <= tierThreeThreshold){
-                    _totalFees = 16;
-                    _liquidityFee = 9;
-                    _operatingFee = 4;
-                    _reservedFee = 3;
-                }else if(amount <= tierFourThreshold){
-                    _totalFees = 20;
-                    _liquidityFee = 11;
-                    _operatingFee = 5;
-                    _reservedFee = 4;
-                }else{
-                    _totalFees = 24;
-                    _liquidityFee = 13;
-                    _operatingFee = 6;
-                    _reservedFee = 5;
-                }
-            } else {
-                _totalFees = 10;
-                _liquidityFee = 6;
-                _operatingFee = 3;
-                _reservedFee = 1;
-            }
-
-        	uint256 fees = amount.mul(_totalFees).div(100);
-        	amount = amount.sub(fees);
-
-            uint256 liquidFee = fees.mul(_liquidityFee).div(_totalFees);
-            uint256 operatingFee = fees.mul(_operatingFee).div(_totalFees);
-            uint256 reservedFee = fees.sub(liquidFee).sub(operatingFee);
-            
-            super._transfer(from, address(this), liquidFee);
-            super._transfer(from, operationWallet, operatingFee);
-            super._transfer(from, reservedWallet, reservedFee);
-        }
         super._transfer(from, to, amount);
     }
 
