@@ -923,31 +923,6 @@ contract DynastyXV1 is ERC20, Ownable {
         swapAndLiquifyEnabled = _enabled;
         emit SwapAndLiquifyEnabledUpdated(_enabled);
     }
-    
-    uint256 public tierOneThreshold;
-    function setTierOneThreshold(uint _newThresholdPercent) public onlyOwner{
-        tierOneThreshold = _newThresholdPercent.mul(totalSupply()).div(1000000);
-    }
-
-    uint256 public tierTwoThreshold;
-    function setTierTwoThreshold(uint _newThresholdPercent) public onlyOwner{
-        tierTwoThreshold = _newThresholdPercent.mul(totalSupply()).div(1000000);
-    }
-
-    uint256 public tierThreeThreshold;
-    function setTierThreeThreshold(uint _newThresholdPercent) public onlyOwner{
-        tierThreeThreshold = _newThresholdPercent.mul(totalSupply()).div(1000000);
-    }
-
-    uint256 public tierFourThreshold;
-    function setTierFourThreshold(uint _newThresholdPercent) public onlyOwner{
-        tierFourThreshold = _newThresholdPercent.mul(totalSupply()).div(1000000);
-    }
-
-    uint256 public tierFiveThreshold;
-    function setTierFiveThreshold(uint _newThresholdPercent) public onlyOwner{
-        tierFiveThreshold = _newThresholdPercent.mul(totalSupply()).div(1000000);
-    }
 
     function _transfer(
         address from,
