@@ -895,12 +895,6 @@ contract DynastyXV1 is ERC20, Ownable {
         reservedWallet = owner();
 
         _mint(owner(), _totalSupply);
-
-        setTierOneThreshold(10);
-        setTierTwoThreshold(25);
-        setTierThreeThreshold(50);
-        setTierFourThreshold(100);
-        setTierFiveThreshold(5000);
     }
 
     receive() external payable {}
