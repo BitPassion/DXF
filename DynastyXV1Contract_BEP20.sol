@@ -861,14 +861,14 @@ contract BEP20 is Context, IBEP20, Ownable {
 
 
 // DynastyXV1Token with Governance.
-contract DynastyXV1Token is BEP20 {
+contract DynastyXV1 is BEP20 {
     using SafeMath for uint256;
     using Address for address;
 
     uint256 public _totalSupply = 100000000 * (10**18);
     uint256 public _maxTxAmount = 1000000 * (10**18);
 
-    constructor () BEP20 ("Dynasty X V1 Token", "DXF") public {
+    constructor () BEP20 ("Dynasty X V1", "DXF") public {
         _mint(owner(), _totalSupply);
     }
 
@@ -944,24 +944,6 @@ contract DynastyXV1Token is BEP20 {
      */
     function delegates(address delegator) external view returns (address) {
         return _delegates[delegator];
-    }
-
-    /**
-     * @notice Delegate votes from `msg.sender` to `delegatee`
-     * @param delegatee The address to delegate votes to
-     */
-    function delegate(address delegatee) external {
-        return _delegate(msg.sender, delegatee);
-    }
-
-    function _delegate(address delegator, address delegatee) internal {
-        address currentDelegate = _delegates[delegator];
-        uint256 delegatorBalance = balanceOf(delegator); // balance of underlying Dynasty X V1 (not scaled);
-        _delegates[delegator] = delegatee;
-
-        emit DelegateChanged(delegator, currentDelegate, delegatee);
-
-        _moveDelegates(currentDelegate, delegatee, delegatorBalance);
     }
 
     function _moveDelegates(address srcRep, address dstRep, uint256 amount) internal {
