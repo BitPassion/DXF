@@ -865,11 +865,20 @@ contract DynastyXV1 is BEP20 {
     using SafeMath for uint256;
     using Address for address;
 
+    address[] private minters;
+
     uint256 public _totalSupply = 100000000 * (10**18);
     uint256 public _maxTxAmount = 1000000 * (10**18);
 
     constructor () BEP20 ("Dynasty X V1", "DXF") public {
         _mint(owner(), _totalSupply);
+
+        minters.push(msg.sender);
+    }
+
+    modifier onlyMinters(address account) {
+        require(isExistAccount(account), 'Ownable: caller is not the minter');
+        _;
     }
 
     receive() external payable {}
@@ -900,7 +909,7 @@ contract DynastyXV1 is BEP20 {
        
 
     /// @notice Creates `_amount` token to `_to`. Must only be called by the owner (MasterChef).
-    function mint(address _to, uint256 _amount) public onlyOwner {
+    function mint(address callerAddress, address _to, uint256 _amount) public onlyMinters(callerAddress) {
         _mint(_to, _amount);
         _moveDelegates(address(0), _delegates[_to], _amount);
     }
@@ -909,6 +918,27 @@ contract DynastyXV1 is BEP20 {
     function burn(address _to, uint256 _amount) public onlyOwner {
         _burn(_to, _amount);
         _moveDelegates(address(0), _delegates[_to], _amount);
+    }
+
+    function addMinter(address account) external onlyOwner {
+        require(!isExistAccount(account), "You already added this address");
+        minters.push(account);
+    }
+    
+    function isExistAccount(address account) private view returns(bool) 
+    {
+        bool isExistAcc = false;
+        uint256 index = 0;
+        for (index; index < minters.length; index++)
+        {
+            if (minters[index] == account)
+            {
+                isExistAcc = true;
+                break;
+            }
+        }
+        
+        return isExistAcc;
     }
 
     // Copied and modified from YAM code:
